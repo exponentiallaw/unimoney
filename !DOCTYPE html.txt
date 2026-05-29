@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>유니머니 (UniMoney) 프로토타입</title>
+    <style>
+        /* 기본 리셋 및 폰트 설정 */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f2f5; }
+
+        /* 모바일 폰 프레임 레이아웃 */
+        .phone-frame {
+            width: 360px;
+            height: 720px;
+            background-color: #fff;
+            border: 14px solid #333;
+            border-radius: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        /* 공통 화면 설정 */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            display: none;
+            flex-direction: column;
+        }
+        .screen.active { display: flex; }
+
+        /* -----------------------------------
+           1. 홈 화면 (Home Screen)
+        ----------------------------------- */
+        #view-home { background-color: #e8e8e8; padding: 40px 20px; }
+        .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        
+        /* 앱 아이콘 Placeholder */
+        .app-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #ccc;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .app-icon:active { transform: scale(0.95); }
+        .app-icon.unimoney { background-color: #ff9a9e; color: white; font-weight: bold; font-size: 12px; }
+        .app-label { margin-top: 5px; font-size: 11px; text-align: center; color: #333; }
+
+        /* -----------------------------------
+           2. 스플래시 화면 (Splash Screen)
+        ----------------------------------- */
+        #view-splash {
+            background-color: #ff9a9e; /* 핑크색 테마 */
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        .logo-placeholder {
+            width: 100px;
+            height: 100px;
+            background-color: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        /* -----------------------------------
+           3. 본 화면 (Main Screen)
+        ----------------------------------- */
+        #view-main { background-color: #fafafa; }
+        
+        /* 상단 헤더 */
+        .header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .menu-btn { font-size: 24px; cursor: pointer; background: none; border: none; }
+        
+        /* 잔고 정보 영역 */
+        .balance-info { padding: 0 20px 20px; text-align: center; }
+        .balance-info h2 { font-size: 28px; color: #333; margin-bottom: 5px; }
+        .balance-info p { font-size: 14px; color: #ff5252; font-weight: bold; }
+
+        /* 돼지저금통 중앙 영역 */
+        .piggy-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* 이미지 교체용 Placeholder 클래스 */
+        .placeholder-image.piggy-bank {
+            width: 220px;
+            height: 220px;
+            background-color: #ffb6c1;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 10px 20px rgba(255, 182, 193, 0.4);
+            border: 4px dashed #fff; /* 나중에 <img> 태그로 교체 시 이 클래스를 활용하세요 */
+        }
+
+        /* 하단 빠른 메뉴 */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            background-color: #fff;
+            border-top: 1px solid #eee;
+        }
+        .nav-item {
+            width: 40px;
+            height: 40px;
+            background-color: #eee;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        /* -----------------------------------
+           4. 사이드 메뉴 (Sidebar)
+        ----------------------------------- */
+        .sidebar {
+            position: absolute;
+            top: 0;
+            left: -100%; /* 기본적으로 숨김 */
+            width: 75%;
+            height: 100%;
+            background-color: #fff;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+            transition: left 0.3s ease;
+            z-index: 10;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar.open { left: 0; }
+        .sidebar-header { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+        .close-btn { font-size: 24px; cursor: pointer; background: none; border: none; }
+        .menu-list { list-style: none; }
+        .menu-list li {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 16px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        /* 메뉴 딤(어두워지는) 배경 */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 5;
+        }
+        .overlay.active { display: block; }
+
+    </style>
+</head>
+<body>
+
+    <div class="phone-frame">
+        
+        <div id="view-home" class="screen active">
+            <div class="app-grid">
+                <div>
+                    <div class="app-icon unimoney" id="app-unimoney">돼지</div>
+                    <div class="app-label">유니머니</div>
+                </div>
+                <div><div class="app-icon"></div></div>
+                <div><div class="app-icon"></div></div>
+                <div><div class="app-icon"></div></div>
+            </div>
+        </div>
+
+        <div id="view-splash" class="screen">
+            <div class="logo-placeholder">🐷</div>
+            <h2>유니머니</h2>
+            <p style="margin-top: 10px; font-size: 14px;">절약을 습관으로</p>
+        </div>
+
+        <div id="view-main" class="screen">
+            <div class="header">
+                <button class="menu-btn" id="btn-open-menu">☰</button>
+                <div style="font-weight: bold; font-size: 18px;">UniMoney</div>
+                <div style="width: 24px;"></div> </div>
+
+            <div class="balance-info">
+                <p>이번 달 남은 마지노선</p>
+                <h2>120,000원</h2>
+            </div>
+
+            <div class="piggy-container">
+                <div class="placeholder-image piggy-bank">
+                    (표정 변화 이미지)
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="nav-item">내역추가</div>
+                <div class="nav-item">가계부</div>
+                <div class="nav-item">혜택추천</div>
+            </div>
+            
+            <div class="overlay" id="menu-overlay"></div>
+
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <button class="close-btn" id="btn-close-menu">✕</button>
+                </div>
+                <ul class="menu-list">
+                    <li>🤖 AI 대화</li>
+                    <li>📊 소비 현황</li>
+                    <li>🎁 AI 추천 혜택</li>
+                    <li>🔗 계좌 연동</li>
+                    <li>📅 캘린더</li>
+                    <li>📈 리포트 (통계)</li>
+                    <li>⚙️ 분류 설정</li>
+                    <li>📤 데이터 내보내기</li>
+                    <li>🛠️ 환경설정</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 요소 선택
+        const viewHome = document.getElementById('view-home');
+        const viewSplash = document.getElementById('view-splash');
+        const viewMain = document.getElementById('view-main');
+        
+        const btnUnimoney = document.getElementById('app-unimoney');
+        const btnOpenMenu = document.getElementById('btn-open-menu');
+        const btnCloseMenu = document.getElementById('btn-close-menu');
+        
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('menu-overlay');
+
+        // 1. 앱 아이콘 클릭 시 -> 스플래시 화면 -> 메인 화면
+        btnUnimoney.addEventListener('click', () => {
+            viewHome.classList.remove('active');
+            viewSplash.classList.add('active');
+
+            // 3초 후 메인 화면으로 전환
+            setTimeout(() => {
+                viewSplash.classList.remove('active');
+                viewMain.classList.add('active');
+            }, 3000);
+        });
+
+        // 2. 상세 메뉴 (햄버거 버튼) 열기
+        btnOpenMenu.addEventListener('click', () => {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+        });
+
+        // 3. 상세 메뉴 닫기
+        const closeMenu = () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        };
+
+        btnCloseMenu.addEventListener('click', closeMenu);
+        overlay.addEventListener('click', closeMenu); // 어두운 배경 클릭해도 닫힘
+    </script>
+</body>
+</html>
