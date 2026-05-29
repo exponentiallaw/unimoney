@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>유니머니 프로토타입 V3 (커스텀 이미지)</title>
+    <title>유니머니 프로토타입 V4 (AI대화 추가)</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -16,269 +16,182 @@
         }
 
         * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            box-sizing: border-box; margin: 0; padding: 0;
             font-family: 'Noto Sans KR', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: #e2e8f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
+            background-color: #e2e8f0; display: flex;
+            justify-content: center; align-items: center;
+            min-height: 100vh; overflow: hidden;
         }
 
-        /* 스마트폰 테두리 기기 프레임 */
+        /* 폰 프레임 */
         .phone-frame {
-            width: 375px;
-            height: 812px;
-            background-color: #1a202c;
-            border-radius: 44px;
-            padding: 12px;
-            box-shadow: var(--phone-shadow);
-            position: relative;
+            width: 375px; height: 812px; background-color: #1a202c;
+            border-radius: 44px; padding: 12px;
+            box-shadow: var(--phone-shadow); position: relative;
             border: 4px solid #2d3748;
         }
 
         .phone-notch {
-            position: absolute;
-            top: 22px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 110px;
-            height: 28px;
-            background-color: #000;
-            border-radius: 20px;
-            z-index: 1000;
+            position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+            width: 110px; height: 28px; background-color: #000;
+            border-radius: 20px; z-index: 1000;
         }
 
         .phone-screen {
-            width: 100%;
-            height: 100%;
-            background-color: #fff;
-            border-radius: 34px;
-            overflow: hidden;
-            position: relative;
+            width: 100%; height: 100%; background-color: #fff;
+            border-radius: 34px; overflow: hidden; position: relative;
         }
 
         .status-bar {
-            height: 40px;
-            padding: 0 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            font-weight: 500;
-            position: absolute;
-            top: 0;
-            width: 100%;
-            z-index: 999;
-            color: #2d3748;
+            height: 40px; padding: 0 24px; display: flex;
+            justify-content: space-between; align-items: center;
+            font-size: 13px; font-weight: 500; position: absolute;
+            top: 0; width: 100%; z-index: 999; color: #2d3748;
         }
 
-        .status-icons span { margin-left: 5px; }
-
         /* ==========================================
-           1. 휴대폰 기본 홈 화면 (phone_bg.jpg.jpg 적용)
+           1. 홈 화면 (배경 사진 제거 -> 그라데이션 적용)
            ========================================== */
         .view-home {
             width: 100%; height: 100%;
-            background-color: #fff0f2;
-            background-image: url('phone_bg.jpg.jpg');
-            background-size: cover;
-            background-position: center;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            position: absolute; top: 0; left: 0;
-            z-index: 10; transition: opacity 0.5s ease;
+            /* 사진 대신 미감이 돋보이는 부드러운 그라데이션 컬러 적용 */
+            background: linear-gradient(135deg, #ffeef1 0%, #e0c3fc 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: absolute; top: 0; left: 0; z-index: 10; transition: opacity 0.5s ease;
         }
 
-        .app-icon-wrapper {
-            display: flex; flex-direction: column; align-items: center;
-            cursor: pointer; transition: transform 0.2s ease;
-        }
+        .app-icon-wrapper { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.2s ease; }
         .app-icon-wrapper:active { transform: scale(0.9); }
-
         .app-icon {
-            width: 75px; height: 75px;
-            border-radius: 18px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            margin-bottom: 8px;
-            background: none; padding: 0; overflow: hidden;
+            width: 75px; height: 75px; border-radius: 18px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            margin-bottom: 8px; background: none; padding: 0; overflow: hidden;
         }
-        .app-icon img {
-            width: 100%; height: 100%; object-fit: cover;
-        }
-
-        .app-name {
-            font-size: 14px; font-weight: 700; color: #fff;
-            text-shadow: 0px 1px 3px rgba(0,0,0,0.6);
-        }
+        .app-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .app-name { font-size: 14px; font-weight: 700; color: #333; }
 
         /* ==========================================
-           2. 앱 로딩 대기 화면 (splash_img.jpg.jpeg 적용)
+           2. 대기 화면 (splash_img.jpg.jpeg)
            ========================================== */
         .view-splash {
-            width: 100%; height: 100%;
-            background-color: #ffffff;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            position: absolute; top: 0; left: 0;
-            z-index: 20; opacity: 0; pointer-events: none;
-            transition: opacity 0.4s ease;
+            width: 100%; height: 100%; background-color: #ffffff;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: absolute; top: 0; left: 0; z-index: 20; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
         }
         .view-splash.active { opacity: 1; pointer-events: auto; }
+        .splash-logo { width: 180px; height: 180px; margin-bottom: 20px; animation: bounce 2s infinite ease-in-out; }
+        .splash-logo img { width: 100%; height: 100%; object-fit: contain; }
+        .splash-title { font-size: 24px; font-weight: 900; color: var(--color-text-dark); letter-spacing: 2px; }
 
-        .splash-logo {
-            width: 180px; height: 180px;
-            margin-bottom: 20px;
-            animation: bounce 2s infinite ease-in-out;
-        }
-        .splash-logo img {
-            width: 100%; height: 100%; object-fit: contain;
-        }
-        
-        .splash-title {
-            font-size: 24px; font-weight: 900;
-            color: var(--color-text-dark); letter-spacing: 2px;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
         /* ==========================================
-           3. 메인 앱 화면 구성 (main_pig.jpg.jpeg 적용)
+           3. 메인 앱 화면 (main_pig.jpg.jpeg + 잔액 표시)
            ========================================== */
         .view-app {
-            width: 100%; height: 100%;
-            background-color: #fafafa;
-            display: flex; flex-direction: column;
-            position: absolute; top: 0; left: 0;
-            z-index: 30; opacity: 0; pointer-events: none;
-            transition: opacity 0.4s ease;
+            width: 100%; height: 100%; background-color: #fafafa;
+            display: flex; flex-direction: column; position: absolute; top: 0; left: 0;
+            z-index: 30; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
         }
         .view-app.active { opacity: 1; pointer-events: auto; }
 
         .app-header {
-            height: 88px; padding: 40px 20px 0 20px;
-            display: flex; justify-content: space-between; align-items: center;
+            height: 88px; padding: 40px 20px 0 20px; display: flex;
+            justify-content: space-between; align-items: center;
             background-color: white; border-bottom: 1px solid #f0f0f0;
         }
-
         .btn-menu, .btn-alarm {
-            font-size: 22px; color: var(--color-text-dark);
-            cursor: pointer; width: 36px; height: 36px;
-            display: flex; justify-content: center; align-items: center;
-            border-radius: 50%; transition: background 0.2s;
+            font-size: 22px; color: var(--color-text-dark); cursor: pointer; width: 36px; height: 36px;
+            display: flex; justify-content: center; align-items: center; border-radius: 50%; transition: background 0.2s;
         }
         .btn-menu:active, .btn-alarm:active { background-color: #f7fafc; }
-
         .app-title { font-size: 17px; font-weight: 700; color: var(--color-text-dark); }
 
-        .app-content {
-            flex: 1; overflow-y: auto;
-            padding: 20px; padding-bottom: 90px;
-            display: flex; flex-direction: column;
-        }
+        .app-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; display: flex; flex-direction: column; }
 
-        /* 자산 현황 (상단 배치) */
+        /* 잔액 정보 카드 영역 (계좌 잔고 강조) */
         .balance-card {
-            background-color: white; border-radius: 24px;
-            padding: 22px; text-align: center;
-            box-shadow: 0 4px 18px rgba(0,0,0,0.02);
-            margin-bottom: 30px;
+            background-color: white; border-radius: 24px; padding: 24px;
+            text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.04); margin-bottom: 30px;
         }
-        .balance-label { font-size: 14px; font-weight: 700; color: var(--color-text-dark); margin-bottom: 8px; }
-        .balance-amount { font-size: 28px; font-weight: 900; color: var(--color-primary); }
+        .balance-label { font-size: 13px; font-weight: 500; color: var(--color-text-light); margin-bottom: 6px; }
+        .balance-amount { font-size: 32px; font-weight: 900; color: var(--color-text-dark); letter-spacing: -1px; }
+        .balance-limit { font-size: 12px; color: var(--color-primary); font-weight: 700; margin-top: 10px; background: #fff0f2; display: inline-block; padding: 4px 12px; border-radius: 12px; }
 
-        /* 중앙 돼지 마스코트 영역 */
-        .piggy-content-area {
-            flex: 1; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-        }
-        .piggy-image-box {
-            width: 240px; height: 240px;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .piggy-char-img {
-            width: 100%; height: 100%; object-fit: contain;
-        }
+        /* 중앙 돼지 마스코트 */
+        .piggy-content-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .piggy-image-box { width: 240px; height: 240px; display: flex; justify-content: center; align-items: center; }
+        .piggy-char-img { width: 100%; height: 100%; object-fit: contain; }
         .status-badge {
-            margin-top: 15px; background: #ffb6c1; color: white;
-            padding: 8px 20px; border-radius: 20px;
-            font-weight: bold; font-size: 14px;
-            box-shadow: 0 4px 10px rgba(255, 182, 193, 0.4);
+            margin-top: 15px; background: #ffb6c1; color: white; padding: 8px 20px; border-radius: 20px;
+            font-weight: bold; font-size: 14px; box-shadow: 0 4px 10px rgba(255, 182, 193, 0.4);
         }
 
-        /* ==========================================
-           4. 하단 탭 네비게이션
-           ========================================== */
+        /* 하단 탭 내비게이션 */
         .bottom-nav {
-            position: absolute; bottom: 0; left: 0;
-            width: 100%; height: 76px;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 76px;
             background-color: rgba(255, 255, 255, 0.94); backdrop-filter: blur(10px);
-            border-top: 1px solid #f0f0f0;
-            display: flex; justify-content: space-around; align-items: center;
+            border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; align-items: center;
             padding-bottom: 12px; z-index: 100;
         }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center;
-            color: #a0aec0; cursor: pointer; text-decoration: none; flex: 1;
-        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #a0aec0; cursor: pointer; flex: 1; }
         .nav-item.active { color: var(--color-primary); }
         .nav-icon { font-size: 20px; margin-bottom: 2px; }
         .nav-label { font-size: 10px; font-weight: 500; }
 
         /* ==========================================
-           5. 슬라이딩 사이드 드로어 메뉴
+           4. AI 대화창 화면 (새로 추가됨)
            ========================================== */
-        .drawer-overlay {
+        .view-chat {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.4); z-index: 500;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+            background-color: #f4f5f7; z-index: 40; display: flex; flex-direction: column;
+            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
+        .view-chat.active { transform: translateX(0); }
+        
+        .chat-header {
+            height: 88px; padding: 40px 20px 0 20px; display: flex; align-items: center;
+            background-color: white; border-bottom: 1px solid #f0f0f0;
+        }
+        .btn-back { font-size: 20px; cursor: pointer; color: var(--color-text-dark); margin-right: 15px; }
+        .chat-title { font-size: 17px; font-weight: 700; color: var(--color-text-dark); }
+        
+        .chat-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+        .chat-msg { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.4; position: relative; }
+        .msg-ai { background-color: white; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); color: var(--color-text-dark); }
+        .msg-user { background-color: var(--color-primary); align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 2px 10px rgba(255,107,139,0.2); color: white; }
+        
+        .chat-input-area {
+            padding: 12px 20px 24px; background-color: white; border-top: 1px solid #f0f0f0;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .chat-input {
+            flex: 1; background-color: #f4f5f7; border: none; padding: 14px 20px;
+            border-radius: 24px; font-size: 14px; outline: none; color: var(--color-text-dark);
+        }
+        .btn-send {
+            width: 44px; height: 44px; border-radius: 50%; background-color: var(--color-primary);
+            color: white; border: none; font-size: 18px; display: flex; justify-content: center; align-items: center; cursor: pointer;
+        }
+
+        /* 사이드 드로어 메뉴 & 모달 (기존 유지) */
+        .drawer-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 500; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .drawer-overlay.active { opacity: 1; pointer-events: auto; }
-
-        .drawer-menu {
-            position: absolute; top: 0; left: -280px;
-            width: 280px; height: 100%; background-color: white; z-index: 501;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.1); transition: left 0.3s ease;
-            padding: 60px 24px 24px 24px; display: flex; flex-direction: column;
-        }
+        .drawer-menu { position: absolute; top: 0; left: -280px; width: 280px; height: 100%; background: white; z-index: 501; box-shadow: 10px 0 30px rgba(0,0,0,0.1); transition: left 0.3s ease; padding: 60px 24px 24px; display: flex; flex-direction: column; }
         .drawer-menu.active { left: 0; }
-
         .drawer-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
-        .drawer-item {
-            padding: 14px 16px; border-radius: 12px; color: var(--color-text-dark);
-            font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px;
-        }
-        .drawer-item:active { background-color: #fff0f2; color: var(--color-primary); }
+        .drawer-item { padding: 14px 16px; border-radius: 12px; color: var(--color-text-dark); font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px; }
+        .drawer-item:active { background: #fff0f2; color: var(--color-primary); }
         .drawer-item-icon { font-size: 16px; width: 20px; }
         
-        /* 모달 팝업 */
-        .modal-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); z-index: 1000;
-            display: flex; justify-content: center; align-items: center; padding: 30px;
-            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
-        }
+        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 30px; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .custom-modal {
-            background-color: white; width: 100%; border-radius: 24px; padding: 24px;
-            text-align: center; transform: scale(0.9); transition: transform 0.2s ease;
-        }
+        .custom-modal { background: white; width: 100%; border-radius: 24px; padding: 24px; text-align: center; transform: scale(0.9); transition: transform 0.2s ease; }
         .modal-overlay.active .custom-modal { transform: scale(1); }
-        .btn-modal-close {
-            width: 100%; padding: 12px; background-color: var(--color-primary);
-            color: white; border: none; border-radius: 12px; font-size: 14px;
-            font-weight: 700; cursor: pointer; margin-top: 15px;
-        }
+        .btn-modal-close { width: 100%; padding: 12px; background: var(--color-primary); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -317,8 +230,9 @@
 
                 <div class="app-content">
                     <div class="balance-card">
-                        <div class="balance-label">이번 달 남은 권장 예산</div>
+                        <div class="balance-label">현재 계좌 잔액</div>
                         <div class="balance-amount">342,500 원</div>
+                        <div class="balance-limit">이번 달 마지노선: 100,000원</div>
                     </div>
 
                     <div class="piggy-content-area">
@@ -330,10 +244,26 @@
                 </div>
 
                 <div class="bottom-nav">
-                    <div class="nav-item" onclick="showModal('안내', '해당 뷰는 아직 준비 중입니다.')"><div class="nav-icon">📅</div><div class="nav-label">캘린더</div></div>
-                    <div class="nav-item" onclick="showModal('안내', '해당 뷰는 아직 준비 중입니다.')"><div class="nav-icon">📊</div><div class="nav-label">리포트</div></div>
-                    <div class="nav-item" onclick="showModal('안내', '해당 뷰는 아직 준비 중입니다.')"><div class="nav-icon">⚙️</div><div class="nav-label">설정</div></div>
+                    <div class="nav-item" onclick="showModal('안내', '캘린더 기능은 준비 중입니다.')"><div class="nav-icon">📅</div><div class="nav-label">캘린더</div></div>
+                    <div class="nav-item" onclick="showModal('안내', '리포트 기능은 준비 중입니다.')"><div class="nav-icon">📊</div><div class="nav-label">리포트</div></div>
+                    <div class="nav-item" onclick="showModal('안내', '설정 기능은 준비 중입니다.')"><div class="nav-icon">⚙️</div><div class="nav-label">설정</div></div>
                     <div class="nav-item active"><div class="nav-icon">🐷</div><div class="nav-label">홈</div></div>
+                </div>
+            </div>
+
+            <div class="view-chat" id="viewChat">
+                <div class="chat-header">
+                    <div class="btn-back" onclick="closeChat()">←</div>
+                    <div class="chat-title">🤖 AI 소비 코치</div>
+                </div>
+                <div class="chat-body">
+                    <div class="chat-msg msg-ai">안녕하세요! 유니머니 AI 코치입니다. 🐷<br>오늘의 소비 현황이나 혜택에 대해 무엇이든 물어보세요!</div>
+                    <div class="chat-msg msg-user">이번 달 식비로 얼마 썼어?</div>
+                    <div class="chat-msg msg-ai">이번 달 식비 지출은 총 <strong>124,500원</strong>입니다. 저번 달 같은 기간 대비 15% 절약하고 계시네요! 아주 훌륭합니다. 👍</div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" placeholder="메시지를 입력하세요...">
+                    <button class="btn-send" onclick="showModal('전송', '프로토타입에서는 메시지 전송 기능이 동작하지 않습니다.')">➤</button>
                 </div>
             </div>
 
@@ -341,7 +271,7 @@
             <div class="drawer-menu" id="drawerMenu">
                 <h3 style="color: var(--color-primary); padding-left: 10px;">상세 메뉴</h3>
                 <ul class="drawer-list">
-                    <li class="drawer-item" onclick="showModal('안내', 'AI 대화 기능 준비 중입니다.')"><span class="drawer-item-icon">🤖</span> AI 소비현황</li>
+                    <li class="drawer-item" onclick="openChat()"><span class="drawer-item-icon">🤖</span> AI 대화 및 코칭</li>
                     <li class="drawer-item" onclick="showModal('안내', 'AI 추천 혜택 기능 준비 중입니다.')"><span class="drawer-item-icon">🎁</span> AI 추천 혜택</li>
                     <li class="drawer-item" onclick="showModal('안내', '계좌 연동 기능 준비 중입니다.')"><span class="drawer-item-icon">🔗</span> 계좌 연동</li>
                     <li class="drawer-item" onclick="showModal('안내', '분류 설정 기능 준비 중입니다.')"><span class="drawer-item-icon">🏷️</span> 분류 설정</li>
@@ -387,6 +317,16 @@
                 overlay.classList.remove('active');
                 menu.classList.remove('active');
             }
+        }
+
+        // AI 대화창 열기/닫기 로직
+        function openChat() {
+            toggleDrawer(false); // 사이드 메뉴 닫기
+            document.getElementById('viewChat').classList.add('active');
+        }
+
+        function closeChat() {
+            document.getElementById('viewChat').classList.remove('active');
         }
 
         function showModal(title, text) {
