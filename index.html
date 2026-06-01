@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>유니머니 프로토타입 V5 (상세메뉴 완성)</title>
+    <title>유니머니 프로토타입 V6 (계정 및 제휴혜택 추가)</title>
+    <!-- 구글 폰트 적용 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -199,13 +200,22 @@
         .toggle-knob { width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; right: 2px; top: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
 
         /* ==========================================
-           4. 사이드 드로어 메뉴 & 팝업
+           4. 사이드 드로어 메뉴 & 프로필 팝업
            ========================================== */
         .drawer-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 500; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .drawer-overlay.active { opacity: 1; pointer-events: auto; }
+        
         .drawer-menu { position: absolute; top: 0; left: -280px; width: 280px; height: 100%; background: white; z-index: 501; box-shadow: 10px 0 30px rgba(0,0,0,0.1); transition: left 0.3s ease; padding: 60px 24px 24px; display: flex; flex-direction: column; }
         .drawer-menu.active { left: 0; }
-        .drawer-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+        
+        /* 새로 추가된 드로어 상단 프로필 영역 */
+        .drawer-profile { display: flex; align-items: center; gap: 14px; padding-bottom: 24px; margin-bottom: 16px; border-bottom: 1px solid #f0f0f0; }
+        .dp-avatar { width: 52px; height: 52px; background: var(--color-primary-light); border-radius: 18px; display: flex; justify-content: center; align-items: center; font-size: 26px; color: white; }
+        .dp-info { display: flex; flex-direction: column; }
+        .dp-name { font-size: 17px; font-weight: 800; color: var(--color-text-dark); margin-bottom: 2px; }
+        .dp-univ { font-size: 12px; font-weight: 500; color: var(--color-text-light); }
+        
+        .drawer-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
         .drawer-item { padding: 14px 16px; border-radius: 12px; color: var(--color-text-dark); font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 14px; }
         .drawer-item:active { background: #fff0f2; color: var(--color-primary); }
     </style>
@@ -221,6 +231,7 @@
                 <div class="status-icons"><span>📶</span><span>🔋</span></div>
             </div>
 
+            <!-- [1] 홈 화면 -->
             <div class="view-home" id="viewHome">
                 <div class="app-icon-wrapper" onclick="launchApp()">
                     <div class="app-icon">
@@ -230,13 +241,16 @@
                 </div>
             </div>
 
+            <!-- [2] 대기 화면 -->
             <div class="view-splash" id="viewSplash">
                 <div class="splash-logo">
-                    <img src="splash_img.jpg.jpeg" alt="대기 화면">
+                    <!-- 대기 화면 사진을 main_pig.jpg.png 로 변경 반영 -->
+                    <img src="main_pig.jpg.png" alt="대기 화면">
                 </div>
                 <div class="splash-title">UNIMONEY</div>
             </div>
 
+            <!-- [3] 메인 화면 -->
             <div class="view-app" id="viewApp">
                 <div class="app-header">
                     <div class="btn-menu" onclick="toggleDrawer(true)">☰</div>
@@ -245,6 +259,7 @@
                 </div>
 
                 <div class="app-content">
+                    <!-- 업그레이드된 잔고 카드 -->
                     <div class="balance-card">
                         <div class="bc-top">
                             <div>
@@ -266,14 +281,17 @@
                         </div>
                     </div>
 
+                    <!-- 중앙 돼지 마스코트 -->
                     <div class="piggy-content-area">
                         <div class="piggy-image-box">
-                            <img class="piggy-char-img" src="main_pig.jpg.jpeg" alt="메인 돼지">
+                            <!-- 메인 화면 사진을 main_pig.jpg.png 로 변경 반영 -->
+                            <img class="piggy-char-img" src="main_pig.jpg.png" alt="메인 돼지">
                         </div>
                         <div class="status-badge">현재 아주 잘 절약하고 있어요! ✨</div>
                     </div>
                 </div>
 
+                <!-- 하단 탭 -->
                 <div class="bottom-nav">
                     <div class="nav-item" onclick="openSubView('viewCalendar')"><div class="nav-icon">📅</div><div class="nav-label">캘린더</div></div>
                     <div class="nav-item" onclick="openSubView('viewReport')"><div class="nav-icon">📊</div><div class="nav-label">리포트</div></div>
@@ -282,9 +300,20 @@
                 </div>
             </div>
 
+            <!-- 사이드 드로어 메뉴 -->
             <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer(false)"></div>
             <div class="drawer-menu" id="drawerMenu">
-                <h3 style="color: var(--color-primary); padding-left: 10px; font-size: 18px; margin-bottom: 10px;">상세 메뉴</h3>
+                
+                <!-- 상세 메뉴 맨 위에 계정 표기 (추가됨) -->
+                <div class="drawer-profile">
+                    <div class="dp-avatar">🧑‍🎓</div>
+                    <div class="dp-info">
+                        <div class="dp-name">김유니 님</div>
+                        <div class="dp-univ">한국대학교 경영학과</div>
+                    </div>
+                </div>
+
+                <h3 style="color: var(--color-text-light); padding-left: 10px; font-size: 13px; margin-bottom: 8px;">상세 메뉴</h3>
                 <ul class="drawer-list">
                     <li class="drawer-item" onclick="openSubView('viewChat')"><span style="font-size: 20px;">🤖</span> AI 소비현황 코칭</li>
                     <li class="drawer-item" onclick="openSubView('viewRecom')"><span style="font-size: 20px;">🎁</span> AI 추천 혜택</li>
@@ -294,6 +323,11 @@
                 </ul>
             </div>
 
+            <!-- =====================================
+                 [서브 화면들] 
+                 ===================================== -->
+            
+            <!-- 1. AI 대화창 -->
             <div class="sub-view" id="viewChat">
                 <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewChat')">←</div><div class="sub-title">🤖 AI 소비 코치</div></div>
                 <div class="sub-body">
@@ -304,6 +338,7 @@
                 <div class="chat-input-area"><input type="text" class="chat-input" placeholder="메시지를 입력하세요..."><button style="border:none; background:var(--color-primary); color:white; width:40px; height:40px; border-radius:50%;">➤</button></div>
             </div>
 
+            <!-- 2. AI 추천 혜택 -->
             <div class="sub-view" id="viewRecom">
                 <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewRecom')">←</div><div class="sub-title">🎁 AI 추천 맞춤 혜택</div></div>
                 <div class="sub-body">
@@ -313,15 +348,23 @@
                         <div class="lc-text"><div class="lc-title">스타벅스 50% 할인 카드</div><div class="lc-sub">월 최대 2만 원 청구할인 혜택</div></div>
                         <div class="lc-right">추천</div>
                     </div>
-                    <h4 style="color: var(--color-text-dark); margin: 15px 0 5px;">대학생 전용 혜택</h4>
+                    
+                    <!-- 특정 대학교 제휴 혜택 섹션 추가 -->
+                    <h4 style="color: var(--color-text-dark); margin: 15px 0 5px;">🏫 소속 대학교 제휴 혜택</h4>
                     <div class="list-card">
-                        <div class="lc-icon">🎬</div>
-                        <div class="lc-text"><div class="lc-title">CGV 영화 1+1 쿠폰</div><div class="lc-sub">유니머니 앱 연동 고객 한정</div></div>
+                        <div class="lc-icon" style="background: #e0e7ff;">🍽️</div>
+                        <div class="lc-text"><div class="lc-title">학교 앞 '맛나식당'</div><div class="lc-sub">학생증/앱 인증 시 전 메뉴 10% 할인</div></div>
+                        <div class="lc-right">받기</div>
+                    </div>
+                    <div class="list-card">
+                        <div class="lc-icon" style="background: #fce7f3;">📚</div>
+                        <div class="lc-text"><div class="lc-title">교내 서점 포인트 2배</div><div class="lc-sub">전공서적 구매 시 더블 적립 혜택</div></div>
                         <div class="lc-right">받기</div>
                     </div>
                 </div>
             </div>
 
+            <!-- 3. 계좌 연동 -->
             <div class="sub-view" id="viewAccount">
                 <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewAccount')">←</div><div class="sub-title">🔗 금융/계좌 연동</div></div>
                 <div class="sub-body">
@@ -339,6 +382,7 @@
                 </div>
             </div>
 
+            <!-- 4. 캘린더 -->
             <div class="sub-view" id="viewCalendar">
                 <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewCalendar')">←</div><div class="sub-title">📅 소비 캘린더</div></div>
                 <div class="sub-body">
@@ -357,6 +401,7 @@
                 </div>
             </div>
 
+            <!-- 5. 리포트(통계) -->
             <div class="sub-view" id="viewReport">
                 <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewReport')">←</div><div class="sub-title">📊 소비 현황 리포트</div></div>
                 <div class="sub-body">
@@ -374,6 +419,7 @@
                 </div>
             </div>
 
+            <!-- 6. 분류 설정 -->
             <div class="sub-view" id="viewCategory">
                 <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewCategory')">←</div><div class="sub-title">🏷️ 지출 분류 설정</div></div>
                 <div class="sub-body">
@@ -385,6 +431,7 @@
                 </div>
             </div>
 
+            <!-- 7. 데이터 내보내기 & 설정 -->
             <div class="sub-view" id="viewExport">
                 <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewExport')">←</div><div class="sub-title">💾 내보내기</div></div>
                 <div class="sub-body" style="justify-content: center; align-items: center; text-align: center;">
