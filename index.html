@@ -30,6 +30,40 @@
             min-height: 100vh; overflow: hidden;
         }
 
+
+        
+        /* 3번 요구사항: 폰 화면 밖 외곽 레이아웃 및 글자 배치 */
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background-color: #f4f6f9; 
+            position: relative;
+            overflow: hidden;
+        }
+        .outer-text-left {
+            position: absolute;
+            left: 8%;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            font-weight: 800;
+            color: #333;
+            letter-spacing: -1px;
+        }
+        .outer-text-right {
+            position: absolute;
+            right: 8%;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 28px;
+            font-weight: 900;
+            color: #ff7a90; /* 상징색 분홍 */
+            letter-spacing: 2px;
+            font-family: 'Arial Black', sans-serif;
+        }
+        
         /* 폰 프레임 */
         .phone-frame {
             width: 375px; height: 812px; background-color: #1a202c;
@@ -222,6 +256,13 @@
 </head>
 <body>
 
+<div class="outer-text-left">유니머니 프로젝트</div>
+
+    <div class="outer-text-right">AIDT</div>
+
+    <div class="phone-container">
+        </div>
+    
     <div class="phone-frame">
         <div class="phone-notch"></div>
         <div class="phone-screen">
