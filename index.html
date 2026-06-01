@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>유니머니 프로토타입 V4 </title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>유니머니 프로토타입 V5 (상세메뉴 완성)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-phone: #f4f5f7;
             --bg-app-main: #fff0f2;
             --color-primary: #ff6b8b;
+            --color-primary-light: #ff9ebb;
             --color-text-dark: #2d3748;
             --color-text-light: #718096;
+            --color-bg-gray: #f8fafc;
             --phone-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
         }
 
@@ -54,16 +56,14 @@
         }
 
         /* ==========================================
-           1. 홈 화면 (배경 사진 제거 -> 그라데이션 적용)
+           1. 홈 & 대기 화면
            ========================================== */
         .view-home {
             width: 100%; height: 100%;
-            /* 사진 대신 미감이 돋보이는 부드러운 그라데이션 컬러 적용 */
             background: linear-gradient(135deg, #ffeef1 0%, #e0c3fc 100%);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             position: absolute; top: 0; left: 0; z-index: 10; transition: opacity 0.5s ease;
         }
-
         .app-icon-wrapper { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.2s ease; }
         .app-icon-wrapper:active { transform: scale(0.9); }
         .app-icon {
@@ -73,9 +73,6 @@
         .app-icon img { width: 100%; height: 100%; object-fit: cover; }
         .app-name { font-size: 14px; font-weight: 700; color: #333; }
 
-        /* ==========================================
-           2. 대기 화면 (splash_img.jpg.jpeg)
-           ========================================== */
         .view-splash {
             width: 100%; height: 100%; background-color: #ffffff;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -89,10 +86,10 @@
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
         /* ==========================================
-           3. 메인 앱 화면 (main_pig.jpg.jpeg + 잔액 표시)
+           2. 메인 화면 (마스코트 + 업그레이드된 잔액 카드)
            ========================================== */
         .view-app {
-            width: 100%; height: 100%; background-color: #fafafa;
+            width: 100%; height: 100%; background-color: var(--color-bg-gray);
             display: flex; flex-direction: column; position: absolute; top: 0; left: 0;
             z-index: 30; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
         }
@@ -101,97 +98,116 @@
         .app-header {
             height: 88px; padding: 40px 20px 0 20px; display: flex;
             justify-content: space-between; align-items: center;
-            background-color: white; border-bottom: 1px solid #f0f0f0;
+            background-color: var(--color-bg-gray);
         }
         .btn-menu, .btn-alarm {
             font-size: 22px; color: var(--color-text-dark); cursor: pointer; width: 36px; height: 36px;
             display: flex; justify-content: center; align-items: center; border-radius: 50%; transition: background 0.2s;
         }
-        .btn-menu:active, .btn-alarm:active { background-color: #f7fafc; }
-        .app-title { font-size: 17px; font-weight: 700; color: var(--color-text-dark); }
+        .btn-menu:active, .btn-alarm:active { background-color: #e2e8f0; }
+        .app-title { font-size: 18px; font-weight: 800; color: var(--color-text-dark); letter-spacing: -0.5px;}
 
-        .app-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; display: flex; flex-direction: column; }
+        .app-content { flex: 1; overflow-y: auto; padding: 10px 20px 90px; display: flex; flex-direction: column; }
 
-        /* 잔액 정보 카드 영역 (계좌 잔고 강조) */
+        /* 고급스러운 듀얼 잔액 카드 */
         .balance-card {
-            background-color: white; border-radius: 24px; padding: 24px;
-            text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.04); margin-bottom: 30px;
+            background: linear-gradient(145deg, #ffffff, #fff6f7);
+            border-radius: 28px; padding: 24px;
+            box-shadow: 0 10px 30px rgba(255, 107, 139, 0.08);
+            margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.8);
         }
-        .balance-label { font-size: 13px; font-weight: 500; color: var(--color-text-light); margin-bottom: 6px; }
-        .balance-amount { font-size: 32px; font-weight: 900; color: var(--color-text-dark); letter-spacing: -1px; }
-        .balance-limit { font-size: 12px; color: var(--color-primary); font-weight: 700; margin-top: 10px; background: #fff0f2; display: inline-block; padding: 4px 12px; border-radius: 12px; }
+        .bc-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; }
+        .bc-label { font-size: 13px; font-weight: 600; color: var(--color-text-light); margin-bottom: 4px; }
+        .bc-amount { font-size: 32px; font-weight: 900; color: var(--color-text-dark); letter-spacing: -1px; }
+        .bc-amount span { font-size: 18px; font-weight: 600; margin-left: 2px; }
+        
+        .bc-divider { height: 1px; background-color: #f0f0f0; margin: 15px 0; }
+        
+        .bc-bottom { display: flex; flex-direction: column; gap: 8px; }
+        .bc-limit-text { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; color: var(--color-primary); }
+        .bc-limit-val { font-size: 15px; font-weight: 800; background: #fff0f2; padding: 4px 10px; border-radius: 12px; }
+        .bc-progress-bg { width: 100%; height: 8px; background-color: #edf2f7; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+        .bc-progress-fill { width: 68%; height: 100%; background: linear-gradient(90deg, #ff9ebb, #ff6b8b); border-radius: 4px; }
 
-        /* 중앙 돼지 마스코트 */
+        /* 중앙 마스코트 */
         .piggy-content-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .piggy-image-box { width: 240px; height: 240px; display: flex; justify-content: center; align-items: center; }
-        .piggy-char-img { width: 100%; height: 100%; object-fit: contain; }
+        .piggy-image-box { width: 250px; height: 250px; display: flex; justify-content: center; align-items: center; }
+        .piggy-char-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.05)); }
         .status-badge {
-            margin-top: 15px; background: #ffb6c1; color: white; padding: 8px 20px; border-radius: 20px;
-            font-weight: bold; font-size: 14px; box-shadow: 0 4px 10px rgba(255, 182, 193, 0.4);
+            margin-top: 5px; background: white; color: var(--color-primary); border: 2px solid var(--color-primary-light);
+            padding: 8px 24px; border-radius: 20px; font-weight: 800; font-size: 14px; box-shadow: 0 4px 15px rgba(255, 107, 139, 0.15);
         }
 
         /* 하단 탭 내비게이션 */
         .bottom-nav {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 76px;
-            background-color: rgba(255, 255, 255, 0.94); backdrop-filter: blur(10px);
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
+            background-color: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px);
             border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: 12px; z-index: 100;
+            padding-bottom: 15px; z-index: 100;
         }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #a0aec0; cursor: pointer; flex: 1; }
-        .nav-item.active { color: var(--color-primary); }
-        .nav-icon { font-size: 20px; margin-bottom: 2px; }
-        .nav-label { font-size: 10px; font-weight: 500; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #a0aec0; cursor: pointer; flex: 1; transition: 0.2s; }
+        .nav-item.active { color: var(--color-primary); transform: translateY(-2px); }
+        .nav-icon { font-size: 22px; margin-bottom: 4px; }
+        .nav-label { font-size: 10px; font-weight: 700; }
 
         /* ==========================================
-           4. AI 대화창 화면 (새로 추가됨)
+           3. 서브 뷰 공통 템플릿 (슬라이드 화면들)
            ========================================== */
-        .view-chat {
+        .sub-view {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #f4f5f7; z-index: 40; display: flex; flex-direction: column;
+            background-color: var(--color-bg-gray); z-index: 40; display: flex; flex-direction: column;
             transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        .view-chat.active { transform: translateX(0); }
+        .sub-view.active { transform: translateX(0); }
         
-        .chat-header {
+        .sub-header {
             height: 88px; padding: 40px 20px 0 20px; display: flex; align-items: center;
-            background-color: white; border-bottom: 1px solid #f0f0f0;
+            background-color: white; border-bottom: 1px solid #f0f0f0; position: relative;
         }
-        .btn-back { font-size: 20px; cursor: pointer; color: var(--color-text-dark); margin-right: 15px; }
-        .chat-title { font-size: 17px; font-weight: 700; color: var(--color-text-dark); }
-        
-        .chat-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
-        .chat-msg { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.4; position: relative; }
+        .btn-back { font-size: 20px; cursor: pointer; color: var(--color-text-dark); margin-right: 15px; font-weight: bold; width: 30px;}
+        .sub-title { font-size: 17px; font-weight: 800; color: var(--color-text-dark); }
+        .sub-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+
+        /* [서브뷰 전용 스타일] AI 대화창 */
+        .chat-msg { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.4; }
         .msg-ai { background-color: white; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); color: var(--color-text-dark); }
         .msg-user { background-color: var(--color-primary); align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 2px 10px rgba(255,107,139,0.2); color: white; }
+        .chat-input-area { padding: 12px 20px 24px; background-color: white; display: flex; align-items: center; gap: 10px; border-top: 1px solid #f0f0f0;}
+        .chat-input { flex: 1; background-color: #f4f5f7; border: none; padding: 14px 20px; border-radius: 24px; font-size: 14px; outline: none; }
         
-        .chat-input-area {
-            padding: 12px 20px 24px; background-color: white; border-top: 1px solid #f0f0f0;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .chat-input {
-            flex: 1; background-color: #f4f5f7; border: none; padding: 14px 20px;
-            border-radius: 24px; font-size: 14px; outline: none; color: var(--color-text-dark);
-        }
-        .btn-send {
-            width: 44px; height: 44px; border-radius: 50%; background-color: var(--color-primary);
-            color: white; border: none; font-size: 18px; display: flex; justify-content: center; align-items: center; cursor: pointer;
-        }
+        /* [서브뷰 전용 스타일] 목록 및 카드형 */
+        .list-card { background: white; border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .lc-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--bg-app-main); display: flex; justify-content: center; align-items: center; font-size: 20px; }
+        .lc-text { flex: 1; }
+        .lc-title { font-size: 15px; font-weight: 700; color: var(--color-text-dark); margin-bottom: 2px;}
+        .lc-sub { font-size: 12px; color: var(--color-text-light); }
+        .lc-right { font-weight: 800; color: var(--color-primary); font-size: 14px; }
+        
+        /* [서브뷰 전용 스타일] 캘린더 */
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: white; padding: 20px; border-radius: 20px; text-align: center; }
+        .cal-day { font-size: 12px; font-weight: 700; color: var(--color-text-light); margin-bottom: 10px;}
+        .cal-date { height: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: 600; border-radius: 10px;}
+        .cal-date.active { background: var(--color-primary); color: white; }
+        .cal-spend { font-size: 9px; color: #e53e3e; margin-top: 2px; font-weight: 700;}
 
-        /* 사이드 드로어 메뉴 & 모달 (기존 유지) */
+        /* [서브뷰 전용 스타일] 리포트 차트 */
+        .donut-chart { width: 160px; height: 160px; border-radius: 50%; background: conic-gradient(var(--color-primary) 0% 45%, #ffb3c6 45% 75%, #ffe3e8 75% 100%); margin: 20px auto; position: relative; display: flex; justify-content: center; align-items: center; }
+        .donut-inner { width: 100px; height: 100px; background: var(--color-bg-gray); border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);}
+
+        /* [서브뷰 전용 스타일] 토글 스위치 */
+        .toggle-switch { width: 44px; height: 24px; background: var(--color-primary); border-radius: 12px; position: relative; }
+        .toggle-knob { width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; right: 2px; top: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
+
+        /* ==========================================
+           4. 사이드 드로어 메뉴 & 팝업
+           ========================================== */
         .drawer-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 500; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .drawer-overlay.active { opacity: 1; pointer-events: auto; }
         .drawer-menu { position: absolute; top: 0; left: -280px; width: 280px; height: 100%; background: white; z-index: 501; box-shadow: 10px 0 30px rgba(0,0,0,0.1); transition: left 0.3s ease; padding: 60px 24px 24px; display: flex; flex-direction: column; }
         .drawer-menu.active { left: 0; }
         .drawer-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
-        .drawer-item { padding: 14px 16px; border-radius: 12px; color: var(--color-text-dark); font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px; }
+        .drawer-item { padding: 14px 16px; border-radius: 12px; color: var(--color-text-dark); font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 14px; }
         .drawer-item:active { background: #fff0f2; color: var(--color-primary); }
-        .drawer-item-icon { font-size: 16px; width: 20px; }
-        
-        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 30px; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .custom-modal { background: white; width: 100%; border-radius: 24px; padding: 24px; text-align: center; transform: scale(0.9); transition: transform 0.2s ease; }
-        .modal-overlay.active .custom-modal { transform: scale(1); }
-        .btn-modal-close { width: 100%; padding: 12px; background: var(--color-primary); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -216,7 +232,7 @@
 
             <div class="view-splash" id="viewSplash">
                 <div class="splash-logo">
-                    <img src="splash_img.jpg.jpeg" alt="대기 화면 이미지">
+                    <img src="splash_img.jpg.jpeg" alt="대기 화면">
                 </div>
                 <div class="splash-title">UNIMONEY</div>
             </div>
@@ -225,65 +241,167 @@
                 <div class="app-header">
                     <div class="btn-menu" onclick="toggleDrawer(true)">☰</div>
                     <div class="app-title">유니머니</div>
-                    <div class="btn-alarm" onclick="showModal('알림센터', '새로운 알림이 없습니다.')">🔔</div>
+                    <div class="btn-alarm" onclick="alert('새로운 알림이 없습니다.')">🔔</div>
                 </div>
 
                 <div class="app-content">
                     <div class="balance-card">
-                        <div class="balance-label">현재 계좌 잔액</div>
-                        <div class="balance-amount">342,500 원</div>
-                        <div class="balance-limit">이번 달 마지노선: 100,000원</div>
+                        <div class="bc-top">
+                            <div>
+                                <div class="bc-label">현재 계좌 잔고</div>
+                                <div class="bc-amount">342,500<span>원</span></div>
+                            </div>
+                            <div style="font-size: 24px; opacity: 0.2;">💰</div>
+                        </div>
+                        <div class="bc-divider"></div>
+                        <div class="bc-bottom">
+                            <div class="bc-limit-text">
+                                <span>마지노선까지 남은 금액</span>
+                                <span class="bc-limit-val">242,500 원</span>
+                            </div>
+                            <div class="bc-progress-bg">
+                                <div class="bc-progress-fill"></div>
+                            </div>
+                            <div style="font-size: 11px; color: var(--color-text-light); text-align: right; margin-top: 2px;">여유 68%</div>
+                        </div>
                     </div>
 
                     <div class="piggy-content-area">
                         <div class="piggy-image-box">
                             <img class="piggy-char-img" src="main_pig.jpg.jpeg" alt="메인 돼지">
                         </div>
-                        <div class="status-badge">아주 잘 절약하고 있어요!</div>
+                        <div class="status-badge">현재 아주 잘 절약하고 있어요! ✨</div>
                     </div>
                 </div>
 
                 <div class="bottom-nav">
-                    <div class="nav-item" onclick="showModal('안내', '캘린더 기능은 준비 중입니다.')"><div class="nav-icon">📅</div><div class="nav-label">캘린더</div></div>
-                    <div class="nav-item" onclick="showModal('안내', '리포트 기능은 준비 중입니다.')"><div class="nav-icon">📊</div><div class="nav-label">리포트</div></div>
-                    <div class="nav-item" onclick="showModal('안내', '설정 기능은 준비 중입니다.')"><div class="nav-icon">⚙️</div><div class="nav-label">설정</div></div>
-                    <div class="nav-item active"><div class="nav-icon">🐷</div><div class="nav-label">홈</div></div>
-                </div>
-            </div>
-
-            <div class="view-chat" id="viewChat">
-                <div class="chat-header">
-                    <div class="btn-back" onclick="closeChat()">←</div>
-                    <div class="chat-title">🤖 AI 소비 코치</div>
-                </div>
-                <div class="chat-body">
-                    <div class="chat-msg msg-ai">안녕하세요! 유니머니 AI 코치입니다. 🐷<br>오늘의 소비 현황이나 혜택에 대해 무엇이든 물어보세요!</div>
-                    <div class="chat-msg msg-user">이번 달 식비로 얼마 썼어?</div>
-                    <div class="chat-msg msg-ai">이번 달 식비 지출은 총 <strong>124,500원</strong>입니다. 저번 달 같은 기간 대비 15% 절약하고 계시네요! 아주 훌륭합니다. 👍</div>
-                </div>
-                <div class="chat-input-area">
-                    <input type="text" class="chat-input" placeholder="메시지를 입력하세요...">
-                    <button class="btn-send" onclick="showModal('전송', '프로토타입에서는 메시지 전송 기능이 동작하지 않습니다.')">➤</button>
+                    <div class="nav-item" onclick="openSubView('viewCalendar')"><div class="nav-icon">📅</div><div class="nav-label">캘린더</div></div>
+                    <div class="nav-item" onclick="openSubView('viewReport')"><div class="nav-icon">📊</div><div class="nav-label">리포트</div></div>
+                    <div class="nav-item" onclick="openSubView('viewSettings')"><div class="nav-icon">⚙️</div><div class="nav-label">설정</div></div>
+                    <div class="nav-item active" onclick="closeAllSubViews()"><div class="nav-icon">🐷</div><div class="nav-label">홈</div></div>
                 </div>
             </div>
 
             <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer(false)"></div>
             <div class="drawer-menu" id="drawerMenu">
-                <h3 style="color: var(--color-primary); padding-left: 10px;">상세 메뉴</h3>
+                <h3 style="color: var(--color-primary); padding-left: 10px; font-size: 18px; margin-bottom: 10px;">상세 메뉴</h3>
                 <ul class="drawer-list">
-                    <li class="drawer-item" onclick="openChat()"><span class="drawer-item-icon">🤖</span> AI 대화 및 코칭</li>
-                    <li class="drawer-item" onclick="showModal('안내', 'AI 추천 혜택 기능 준비 중입니다.')"><span class="drawer-item-icon">🎁</span> AI 추천 혜택</li>
-                    <li class="drawer-item" onclick="showModal('안내', '계좌 연동 기능 준비 중입니다.')"><span class="drawer-item-icon">🔗</span> 계좌 연동</li>
-                    <li class="drawer-item" onclick="showModal('안내', '분류 설정 기능 준비 중입니다.')"><span class="drawer-item-icon">🏷️</span> 분류 설정</li>
-                    <li class="drawer-item" onclick="showModal('안내', '데이터 내보내기 기능 준비 중입니다.')"><span class="drawer-item-icon">💾</span> 데이터 내보내기</li>
+                    <li class="drawer-item" onclick="openSubView('viewChat')"><span style="font-size: 20px;">🤖</span> AI 소비현황 코칭</li>
+                    <li class="drawer-item" onclick="openSubView('viewRecom')"><span style="font-size: 20px;">🎁</span> AI 추천 혜택</li>
+                    <li class="drawer-item" onclick="openSubView('viewAccount')"><span style="font-size: 20px;">🔗</span> 계좌 연동</li>
+                    <li class="drawer-item" onclick="openSubView('viewCategory')"><span style="font-size: 20px;">🏷️</span> 분류 설정</li>
+                    <li class="drawer-item" onclick="openSubView('viewExport')"><span style="font-size: 20px;">💾</span> 데이터 내보내기</li>
                 </ul>
             </div>
 
-            <div class="modal-overlay" id="customModalOverlay">
-                <div class="custom-modal">
-                    <h3 id="modalTitle" style="margin-bottom: 15px; color: var(--color-text-dark);">알림</h3>
-                    <p id="modalText" style="color: var(--color-text-light); font-size: 14px; margin-bottom: 10px;">내용</p>
-                    <button class="btn-modal-close" onclick="closeModal()">확인</button>
+            <div class="sub-view" id="viewChat">
+                <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewChat')">←</div><div class="sub-title">🤖 AI 소비 코치</div></div>
+                <div class="sub-body">
+                    <div class="chat-msg msg-ai">안녕하세요! 유니머니 AI 코치입니다. 🐷<br>오늘의 소비 현황이나 혜택에 대해 물어보세요!</div>
+                    <div class="chat-msg msg-user">이번 달 식비 지출 어때?</div>
+                    <div class="chat-msg msg-ai">이번 달 식비는 <strong>124,500원</strong>으로, 저번 달 대비 15% 절약 중이네요! 아주 훌륭합니다. 👍</div>
+                </div>
+                <div class="chat-input-area"><input type="text" class="chat-input" placeholder="메시지를 입력하세요..."><button style="border:none; background:var(--color-primary); color:white; width:40px; height:40px; border-radius:50%;">➤</button></div>
+            </div>
+
+            <div class="sub-view" id="viewRecom">
+                <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewRecom')">←</div><div class="sub-title">🎁 AI 추천 맞춤 혜택</div></div>
+                <div class="sub-body">
+                    <h4 style="color: var(--color-text-dark); margin-bottom: 5px;">최근 '카페' 지출이 많으시네요!</h4>
+                    <div class="list-card">
+                        <div class="lc-icon">☕</div>
+                        <div class="lc-text"><div class="lc-title">스타벅스 50% 할인 카드</div><div class="lc-sub">월 최대 2만 원 청구할인 혜택</div></div>
+                        <div class="lc-right">추천</div>
+                    </div>
+                    <h4 style="color: var(--color-text-dark); margin: 15px 0 5px;">대학생 전용 혜택</h4>
+                    <div class="list-card">
+                        <div class="lc-icon">🎬</div>
+                        <div class="lc-text"><div class="lc-title">CGV 영화 1+1 쿠폰</div><div class="lc-sub">유니머니 앱 연동 고객 한정</div></div>
+                        <div class="lc-right">받기</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-view" id="viewAccount">
+                <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewAccount')">←</div><div class="sub-title">🔗 금융/계좌 연동</div></div>
+                <div class="sub-body">
+                    <div class="list-card">
+                        <div class="lc-icon" style="background:#fde047;">🟡</div>
+                        <div class="lc-text"><div class="lc-title">카카오뱅크 통장</div><div class="lc-sub">3333-12-****</div></div>
+                        <div class="toggle-switch"><div class="toggle-knob"></div></div>
+                    </div>
+                    <div class="list-card">
+                        <div class="lc-icon" style="background:#86efac;">🟢</div>
+                        <div class="lc-text"><div class="lc-title">NH농협 체크카드</div><div class="lc-sub">자동 지출 내역 연동 중</div></div>
+                        <div class="toggle-switch"><div class="toggle-knob"></div></div>
+                    </div>
+                    <button style="margin-top: 15px; padding: 15px; background: white; border: 2px dashed #cbd5e1; border-radius: 20px; color: var(--color-text-light); font-weight: 700; width: 100%;">+ 새로운 은행/카드 추가하기</button>
+                </div>
+            </div>
+
+            <div class="sub-view" id="viewCalendar">
+                <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewCalendar')">←</div><div class="sub-title">📅 소비 캘린더</div></div>
+                <div class="sub-body">
+                    <div style="text-align: center; font-weight: 800; font-size: 18px; margin-bottom: 10px;">2026년 6월</div>
+                    <div class="cal-grid">
+                        <div class="cal-day">일</div><div class="cal-day">월</div><div class="cal-day">화</div><div class="cal-day">수</div><div class="cal-day">목</div><div class="cal-day">금</div><div class="cal-day">토</div>
+                        <div class="cal-date" style="color:#ccc;">31</div>
+                        <div class="cal-date">1<div class="cal-spend">-5천</div></div>
+                        <div class="cal-date active">2<div class="cal-spend" style="color:white;">-1만</div></div>
+                        <div class="cal-date">3</div><div class="cal-date">4</div><div class="cal-date">5</div><div class="cal-date">6</div>
+                    </div>
+                    <div class="list-card" style="margin-top: 10px;">
+                        <div class="lc-text"><div class="lc-title">6월 2일 (화)</div><div class="lc-sub">학식 5,000원 / 편의점 5,000원</div></div>
+                        <div class="lc-right">-10,000원</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-view" id="viewReport">
+                <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewReport')">←</div><div class="sub-title">📊 소비 현황 리포트</div></div>
+                <div class="sub-body">
+                    <div style="background:white; padding:20px; border-radius:24px; text-align:center;">
+                        <h4 style="color:var(--color-text-dark);">카테고리별 지출 비율</h4>
+                        <div class="donut-chart">
+                            <div class="donut-inner"><div style="font-weight:800; font-size:20px;">총 지출</div><div style="font-size:12px; color:var(--color-text-light);">180,000원</div></div>
+                        </div>
+                        <div style="display:flex; justify-content:center; gap:15px; font-size:13px; font-weight:600;">
+                            <div><span style="color:var(--color-primary);">●</span> 식비 45%</div>
+                            <div><span style="color:#ffb3c6;">●</span> 쇼핑 30%</div>
+                            <div><span style="color:#ffe3e8;">●</span> 교통 25%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-view" id="viewCategory">
+                <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewCategory')">←</div><div class="sub-title">🏷️ 지출 분류 설정</div></div>
+                <div class="sub-body">
+                    <p style="font-size: 13px; color: var(--color-text-light);">자동 분류 카테고리를 편집합니다.</p>
+                    <div class="list-card"><div class="lc-icon">🍔</div><div class="lc-text"><div class="lc-title">식비</div></div><div style="color:#ccc;">✏️</div></div>
+                    <div class="list-card"><div class="lc-icon">🚌</div><div class="lc-text"><div class="lc-title">교통/통신</div></div><div style="color:#ccc;">✏️</div></div>
+                    <div class="list-card"><div class="lc-icon">🛍️</div><div class="lc-text"><div class="lc-title">쇼핑/미용</div></div><div style="color:#ccc;">✏️</div></div>
+                    <div class="list-card"><div class="lc-icon">📚</div><div class="lc-text"><div class="lc-title">교육/학습</div></div><div style="color:#ccc;">✏️</div></div>
+                </div>
+            </div>
+
+            <div class="sub-view" id="viewExport">
+                <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewExport')">←</div><div class="sub-title">💾 내보내기</div></div>
+                <div class="sub-body" style="justify-content: center; align-items: center; text-align: center;">
+                    <div style="font-size: 60px; margin-bottom: 20px;">📊</div>
+                    <h3 style="color: var(--color-text-dark); margin-bottom: 10px;">가계부 데이터 추출</h3>
+                    <p style="font-size: 14px; color: var(--color-text-light); margin-bottom: 30px;">이번 달 소비 내역을<br>Excel 또는 CSV 파일로 저장합니다.</p>
+                    <button style="width: 100%; padding: 16px; background: var(--color-primary); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 15px; box-shadow: 0 5px 15px rgba(255,107,139,0.3);">엑셀 파일 다운로드</button>
+                </div>
+            </div>
+            
+            <div class="sub-view" id="viewSettings">
+                <div class="sub-header"><div class="btn-back" onclick="closeSubView('viewSettings')">←</div><div class="sub-title">⚙️ 환경 설정</div></div>
+                <div class="sub-body">
+                    <div class="list-card"><div class="lc-text"><div class="lc-title">마지노선 예산 설정</div></div><div class="lc-right">100,000원</div></div>
+                    <div class="list-card"><div class="lc-text"><div class="lc-title">앱 알림 수신</div></div><div class="toggle-switch"><div class="toggle-knob"></div></div></div>
+                    <div class="list-card"><div class="lc-text"><div class="lc-title">다크 모드</div></div><div class="toggle-switch" style="background:#e2e8f0;"><div class="toggle-knob" style="left:2px;"></div></div></div>
+                    <div class="list-card"><div class="lc-text"><div class="lc-title" style="color:#e53e3e;">로그아웃</div></div></div>
                 </div>
             </div>
 
@@ -307,6 +425,7 @@
             }, 3000);
         }
 
+        // 사이드 드로어 조작
         function toggleDrawer(open) {
             const overlay = document.getElementById('drawerOverlay');
             const menu = document.getElementById('drawerMenu');
@@ -319,25 +438,34 @@
             }
         }
 
-        // AI 대화창 열기/닫기 로직
-        function openChat() {
-            toggleDrawer(false); // 사이드 메뉴 닫기
-            document.getElementById('viewChat').classList.add('active');
+        // 서브 뷰 열기 (채팅, 캘린더 등)
+        function openSubView(viewId) {
+            toggleDrawer(false); // 메뉴 닫기
+            
+            // 모든 하단 탭 비활성화
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            // 선택된 뷰 열기
+            document.getElementById(viewId).classList.add('active');
         }
 
-        function closeChat() {
-            document.getElementById('viewChat').classList.remove('active');
+        // 특정 서브 뷰 닫기 (뒤로가기)
+        function closeSubView(viewId) {
+            document.getElementById(viewId).classList.remove('active');
+            
+            // 홈 탭 활성화 복구
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems[navItems.length - 1].classList.add('active');
         }
 
-        function showModal(title, text) {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalText').innerText = text;
-            document.getElementById('customModalOverlay').classList.add('active');
-            toggleDrawer(false);
-        }
-
-        function closeModal() {
-            document.getElementById('customModalOverlay').classList.remove('active');
+        // 하단 홈 버튼 클릭 시 모든 뷰 닫기
+        function closeAllSubViews() {
+            document.querySelectorAll('.sub-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems[navItems.length - 1].classList.add('active'); // 홈 활성화
         }
     </script>
 </body>
